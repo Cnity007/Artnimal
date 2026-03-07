@@ -1,0 +1,600 @@
+:root {
+    --bg-land: #e8f5e9;
+    --bg-water: #e1f5fe;
+    --bg-sky: #f3e5f5;
+    --bg-menu: #fff9c4;
+    --ui-bg: #ffffff;
+    --text-color: #2c3e50;
+    --primary-color: #e74c3c;
+    --primary-hover: #c0392b;
+    --doodle-border: 4px solid #000000;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; 
+    background-color: #333;
+    font-family: 'Patrick Hand', 'Fredoka', cursive, sans-serif;
+}
+
+/* Doodle Art Base Styles */
+.doodle-text {
+    font-family: 'Patrick Hand', cursive;
+    color: var(--text-color);
+}
+
+.th-text {
+    /* Slightly different stack if Thai needs better support, but Patrick Hand is okay for sketch vibe */
+    font-family: 'Patrick Hand', 'Fredoka', sans-serif; 
+}
+
+.text-xl {
+    font-size: 1.5em;
+    margin: 15px 0;
+}
+
+.doodle-box {
+    background: var(--ui-bg);
+    border: var(--doodle-border);
+    /* Standard rounded rectangle */
+    border-radius: 15px;
+    box-shadow: 4px 5px 0px rgba(0,0,0,0.15);
+    transition: transform 0.2s, border-radius 0.3s ease;
+}
+
+/* Only apply hover wobble to specific interactive boxes when Juicy Mode is ON */
+body.juicy-mode .interactive-box:hover,
+body.juicy-mode .doodle-btn:hover {
+    transform: scale(1.02);
+}
+
+.doodle-bg {
+    background-image: linear-gradient(#999 1px, transparent 1px);
+    background-size: 100% 30px;
+    background-color: var(--bg-menu);
+}
+
+#app-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: background-color 0.5s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Grid Paper Background */
+.grid-bg {
+    background-color: #fff;
+    background-image: 
+        linear-gradient(rgba(52, 152, 219, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(52, 152, 219, 0.2) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+.zone-land { background-color: var(--bg-land); }
+.zone-water { background-color: var(--bg-water); }
+.zone-sky { background-color: var(--bg-sky); }
+.zone-menu { background-color: var(--bg-menu); }
+
+/* Record Player inside top-left container */
+#record-player-widget {
+    padding: clamp(8px, 2vw, 15px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    background: var(--ui-bg);
+}
+
+#record-player-widget:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+#record-player-widget.hidden {
+    display: none !important;
+}
+
+.vinyl-disc {
+    font-size: clamp(1.2em, 3vw, 1.8em);
+    animation: spin 3s linear infinite;
+    animation-play-state: paused;
+}
+.vinyl-disc.playing {
+    animation-play-state: running;
+}
+
+/* Settings Sliders */
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.settings-group input[type="range"] {
+    width: 80%;
+}
+
+input[type="text"].doodle-input {
+    border: var(--doodle-border);
+    outline: none;
+    font-family: inherit;
+    font-size: 1.1em;
+}
+
+.queue-item {
+    padding: 5px;
+    border-bottom: 2px dashed #95a5a6;
+    margin-bottom: 5px;
+}
+
+.state-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.state-container.hidden {
+    display: none;
+}
+
+/* Main Menu */
+#main-menu {
+    z-index: 50;
+}
+
+.top-left-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    z-index: 100;
+}
+
+.game-title {
+    font-size: 5em;
+    font-family: 'Patrick Hand', cursive;
+    color: var(--text-color);
+    margin-bottom: 40px;
+    text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+    letter-spacing: 2px;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 250px;
+}
+
+/* Buttons */
+#create-paw-container {
+    position: absolute;
+    bottom: clamp(15px, 5vh, 30px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
+}
+
+.giant-btn {
+    font-size: clamp(1.2em, 4vw, 1.5em);
+    padding: clamp(10px, 3vw, 15px) clamp(20px, 6vw, 40px);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 0 8px 0px #000;
+    background: #ffffff;
+    color: var(--text-color);
+    border: var(--doodle-border);
+    cursor: pointer;
+    font-family: 'Patrick Hand', cursive;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.giant-btn:active {
+    box-shadow: 0 2px 0px #000;
+    transform: translateY(6px);
+}
+
+.inventory-pill {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    background: #fff;
+    border: 3px solid #34495e;
+}
+.doodle-btn {
+    border: var(--doodle-border);
+    border-radius: 12px;
+    background: #ffffff;
+    padding: clamp(8px, 2vw, 10px) clamp(15px, 4vw, 20px);
+    font-size: clamp(1.2em, 3vw, 1.4em);
+    font-family: 'Patrick Hand', cursive;
+    color: var(--text-color);
+    cursor: pointer;
+    box-shadow: 3px 4px 0px rgba(0,0,0,0.2);
+    transition: transform 0.1s, box-shadow 0.1s, border-radius 0.3s;
+}
+
+body.juicy-mode .doodle-btn:hover {
+    border-radius: 60% 40% 40% 60% / 50% 60% 40% 50%;
+}
+
+.primary-btn {
+    background: #ffffff;
+    color: var(--text-color);
+}
+
+.danger-btn {
+    background: #ffffff;
+    color: var(--text-color);
+}
+
+.doodle-btn.active {
+    background: #3498db;
+    color: white;
+    border-color: #2980b9;
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+}
+
+/* Juice animations for inputs */
+body.juicy-mode .doodle-btn:active, 
+body.juicy-mode input[type="range"]:active {
+    transform: scale(0.9) rotate(-2deg);
+}
+
+#animal-name-input {
+    width: 80%;
+    margin-bottom: 20px;
+}
+
+/* Drawing Front Indicator */
+.front-indicator {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    font-size: 1.8em;
+    color: rgba(0,0,0,0.4);
+    pointer-events: none;
+    font-family: 'Patrick Hand', cursive;
+    font-weight: bold;
+}
+
+/* Ending Sequence Overlay */
+#ending-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 1s ease-in-out;
+    opacity: 1;
+}
+
+#ending-overlay.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#ending-trophy {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    animation: bounce 2s infinite;
+}
+
+#ending-text {
+    color: white;
+    font-size: 1.5rem;
+    text-align: center;
+}
+/* Editor Headers */
+.editor-header {
+    width: 95%;
+    margin-top: 15px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    z-index: 10;
+}
+
+.editor-header h2 {
+    font-size: 1.8em;
+    font-family: 'Patrick Hand', cursive;
+}
+
+.inventory {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #e67e22;
+}
+
+.zone-selector, .zone-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.canvas-wrapper {
+    flex-grow: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+}
+
+#drawing-canvas {
+    background: white;
+    max-width: 100%;
+    max-height: 100%;
+    touch-action: none;
+}
+
+#game-canvas {
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0; /* Lower z-index so UI can be on top, and it won't block if state is hidden anyway */
+}
+
+.editor-tools {
+    width: 95%;
+    max-width: 600px;
+    background: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tool-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+input[type="color"] {
+    width: 45px;
+    height: 45px;
+    border: var(--doodle-border);
+    border-radius: 5px 12px 8px 5px;
+    cursor: pointer;
+    background: white;
+    padding: 2px;
+}
+
+/* Modals */
+#modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#modal-overlay.hidden {
+    display: none;
+}
+
+.modal {
+    background: white;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal h2 {
+    font-size: 2.5em;
+    font-family: 'Patrick Hand', cursive;
+}
+
+.donate-img-placeholder img {
+    max-width: 250px;
+    border: var(--doodle-border);
+    border-radius: 5px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* Juicy Modal Entry */
+body.juicy-mode #modal-overlay:not(.hidden) .modal:not(.hidden) {
+    animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Top Left Horizontal UI */
+.top-left-container {
+    position: absolute;
+    top: clamp(10px, 3vh, 20px);
+    left: clamp(10px, 3vw, 20px);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: clamp(8px, 2vw, 15px);
+    z-index: 90;
+    pointer-events: none; /* Let clicks pass through the container itself */
+}
+
+.top-btn {
+    pointer-events: auto; /* Buttons are clickable */
+    font-size: clamp(1.2em, 4vw, 1.8em) !important;
+    padding: clamp(8px, 2vw, 12px) !important;
+    width: clamp(45px, 12vw, 60px);
+    height: clamp(45px, 12vw, 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px !important;
+}
+
+body.juicy-mode .top-btn {
+    border-radius: 40% 60% 50% 50% / 50% 50% 60% 40% !important;
+}
+
+body.juicy-mode .top-btn:hover {
+    border-radius: 60% 40% 60% 40% / 40% 60% 40% 60% !important;
+    transform: scale(1.1) rotate(-5deg);
+}
+
+/* Hidden Quest Widget style was overridden */
+#quest-widget.hidden {
+    display: none !important;
+}
+
+/* Hide UI for screenshot */
+.hide-ui {
+    display: none !important;
+}
+
+/* Flash Effect */
+#flash-effect {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: white;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+}
+.flash-anim {
+    animation: cameraFlash 0.5s ease-out;
+}
+@keyframes cameraFlash {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+.quest-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 2px dashed #95a5a6;
+    gap: 15px;
+}
+.quest-row.done {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* YouTube Queue Enhancements */
+.queue-item {
+    padding: 5px;
+    border-bottom: 2px dashed #95a5a6;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.btn-delete-yt {
+    background: #e74c3c;
+    color: white;
+    border: 2px solid #c0392b;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ending Sequence Overlay */
+#ending-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 2s ease;
+}
+#ending-overlay.hidden {
+    display: none;
+}
+#ending-trophy {
+    font-size: 10em;
+    animation: floatUp 3s ease-out forwards;
+    opacity: 0;
+    transform: translateY(100px);
+}
+#ending-text {
+    font-size: 2em;
+    color: white;
+    margin-top: 30px;
+    opacity: 0;
+    animation: fadeIn 2s ease-out 2s forwards;
+}
+
+@keyframes floatUp {
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeIn {
+    to { opacity: 1; }
+}

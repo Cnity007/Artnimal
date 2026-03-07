@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OWN FARM</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Patrick+Hand&display=swap"
+        rel="stylesheet">
+    <!-- YouTube IFrame API will be loaded dynamically -->
+</head>
+
+<body>
+    <div id="app-container" class="zone-land">
+
+        <!-- Hidden YouTube Player Container (trick browser to allow autoplay by giving it size but making it invisible) -->
+        <div id="yt-player"
+            style="position:absolute; width:200px; height:200px; left:-9999px; top:-9999px; opacity: 0.01; pointer-events:none;">
+        </div>
+
+        <!-- These widgets are moved to the top-left container within game-state -->
+
+        <!-- Main Menu State -->
+        <div id="main-menu" class="state-container active doodle-bg">
+            <h1 class="game-title">ARTNIMAL FARM!</h1>
+            <div class="menu-buttons">
+                <button id="btn-play" class="doodle-btn primary-btn">Play</button>
+                <button id="btn-credit" class="doodle-btn">Credit</button>
+                <button id="btn-donate" class="doodle-btn">Donate</button>
+                <button id="btn-quit-main" class="doodle-btn danger-btn">Quit</button>
+            </div>
+        </div>
+
+        <!-- Drawing State (Editor) -->
+        <div id="drawing-state" class="state-container hidden">
+            <div class="editor-header doodle-box">
+                <h2>Draw an Artnimal</h2>
+                <div class="zone-selector">
+                    <button class="zone-btn doodle-btn active" data-zone="land" style="display:none;">🌳 Land</button>
+                    <!-- other zones removed per request -->
+                </div>
+            </div>
+
+            <div class="canvas-wrapper" style="position: relative;">
+                <canvas id="drawing-canvas" class="doodle-box interactive-box"></canvas>
+                <div class="front-indicator">FRONT ➔</div>
+            </div>
+
+            <div class="editor-tools doodle-box">
+                <div class="tool-group">
+                    <input type="color" id="color-picker" value="#000000" class="doodle-input">
+                    <input type="range" id="brush-size" min="1" max="50" value="5">
+                </div>
+                <div class="tool-group">
+                    <button id="btn-undo" class="doodle-btn action-btn">↺ Undo</button>
+                    <button id="btn-redo" class="doodle-btn action-btn">↻ Redo</button>
+                    <button id="btn-clear" class="doodle-btn action-btn">🗑 Clear</button>
+                </div>
+                <button id="btn-save" class="doodle-btn primary-btn">Let it Live! ✨</button>
+            </div>
+        </div>
+
+        <!-- Game State (Observation & Feeding) -->
+        <div id="game-state" class="state-container hidden">
+            <div id="top-left-ui" class="top-left-container">
+                <button id="btn-menu-ingame" class="doodle-btn top-btn">☰</button>
+                <div id="record-player-widget" class="doodle-btn top-btn hidden">
+                    <div class="vinyl-disc">🎵</div>
+                </div>
+                <!-- Survey Button -->
+                <button id="btn-survey" class="doodle-btn top-btn">📝</button>
+                <button id="quest-widget" class="doodle-btn top-btn hidden">🏆</button>
+                <button id="btn-camera" class="doodle-btn top-btn">📷</button>
+            </div>
+
+            <canvas id="game-canvas"></canvas>
+
+            <!-- Floating Bottom UI: Create your paw -->
+            <div id="create-paw-container">
+                <button id="btn-create-paw" class="doodle-btn primary-btn giant-btn">🐾 Create your Artnimal!</button>
+                <div class="inventory-pill doodle-box interactive-box doodle-text">
+                    📝 <span id="canvas-count">1</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash Effect for Screenshot -->
+        <div id="flash-effect" class="hidden"></div>
+
+        <!-- Ending Sequence Overlay -->
+        <div id="ending-overlay" class="hidden">
+            <h1 id="ending-trophy">🏆</h1>
+            <p id="ending-text" class="doodle-text th-text">ยินดีด้วย คุณได้เสียเวลาชีวิตให้ผมไปเยอะมาก ดีใจด้วยนะ</p>
+        </div>
+
+        <!-- Modals -->
+        <div id="modal-overlay" class="hidden">
+
+            <!-- In-Game Menu Modal -->
+            <div id="ingame-menu-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Game Paused</h2>
+                <div class="menu-buttons" style="margin-top:20px;">
+                    <button id="btn-resume" class="doodle-btn primary-btn">Resume</button>
+                    <button id="btn-home" class="doodle-btn action-btn">Main Menu</button>
+                    <button id="btn-settings" class="doodle-btn action-btn">Settings</button>
+                </div>
+            </div>
+
+            <!-- Settings Modal -->
+            <div id="settings-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Settings</h2>
+                <div class="settings-group">
+                    <label class="doodle-text text-xl">
+                        <input type="checkbox" id="juicy-toggle"> Enable Juice!
+                        <span style="display:block; font-size:0.7em; color:#666; margin-top:5px;">(Animations, BGM
+                            widget, Sounds & Particles)</span>
+                    </label>
+                </div>
+                <div class="settings-group">
+                    <label class="doodle-text">BGM Volume</label>
+                    <input type="range" id="bgm-vol" min="0" max="100" value="50">
+                </div>
+                <div class="settings-group">
+                    <label class="doodle-text">SFX Volume</label>
+                    <input type="range" id="sfx-vol" min="0" max="100" value="50">
+                </div>
+                <button id="btn-cheat-mode" class="doodle-btn"
+                    style="margin-bottom:15px; background:#ffcccc; color:#cc0000; font-size:1em;">Cheat Mode</button>
+                <button class="doodle-btn close-modal" style="margin-top:20px;">Close</button>
+            </div>
+
+            <!-- YouTube Queue Modal -->
+            <div id="yt-queue-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Music Queue</h2>
+                <p class="doodle-text th-text">ใส่ลิงก์ YouTube เพื่อเล่นเพลง</p>
+                <div class="tool-group" style="width:100%; justify-content:center; margin:15px 0;">
+                    <input type="text" id="yt-link-input" class="doodle-input"
+                        placeholder="https://youtube.com/watch?..."
+                        style="padding:10px; width:70%; border-radius:10px;">
+                    <button id="btn-add-yt" class="doodle-btn primary-btn">+</button>
+                </div>
+                <div id="yt-queue-list" class="doodle-text"
+                    style="max-height: 150px; overflow-y: auto; text-align:left; width:100%; margin-bottom:15px;">
+                    <!-- Queue items injected here -->
+                </div>
+                <div style="display:flex; gap:10px; justify-content:center;">
+                    <button id="btn-play-yt" class="doodle-btn primary-btn">▶ Play</button>
+                    <button id="btn-stop-yt" class="doodle-btn danger-btn">⏸ Stop</button>
+                    <button id="btn-skip-yt" class="doodle-btn action-btn">⏭ Skip</button>
+                </div>
+                <button class="doodle-btn close-modal" style="margin-top:20px; width:100%;">Close</button>
+            </div>
+
+            <!-- Credit Modal -->
+            <div id="credit-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Credit</h2>
+                <p class="doodle-text text-xl">Made by Cnity<br>Contact me IG : Cnity_</p>
+                <button class="doodle-btn close-modal">Close</button>
+            </div>
+
+            <!-- Donate Modal -->
+            <div id="donate-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Donate</h2>
+                <div class="donate-img-placeholder">
+                    <img src="Donate.jpg" alt="Donate QR"
+                        onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'><rect width=\'200\' height=\'200\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'20\'>Donate.jpg</text></svg>'">
+                </div>
+                <p class="doodle-text text-xl th-text">สนับสนุนได้ที่นี่เลยจ้า</p>
+                <button class="doodle-btn close-modal">Close</button>
+            </div>
+
+            <!-- Survey Modal -->
+            <div id="survey-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Feedback Survey</h2>
+                <div class="donate-img-placeholder">
+                    <img src="QR.jpg" alt="Survey QR"
+                        onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'><rect width=\'200\' height=\'200\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'20\'>QR.jpg</text></svg>'">
+                </div>
+                <p class="doodle-text text-xl th-text">ช่วยทำแบบสอบถามนี้หน่อยนะคับ</p>
+                <button class="doodle-btn close-modal">Close</button>
+            </div>
+
+            <!-- Quit Modal -->
+            <div id="quit-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Quit Game?</h2>
+                <p class="doodle-text th-text">ถ้าจะออกจริงๆ อยากบอกก่อนว่าเกมนี้ไม่มีเซฟนะ
+                    ถ้าอยากได้เซฟให้สนับสนุนคนทำได้ที่ปุ่ม
+                    Donate เลย</p>
+                <div class="modal-buttons">
+                    <button id="btn-confirm-quit" class="doodle-btn danger-btn th-text">ออกเกม</button>
+                    <button class="doodle-btn close-modal th-text">ขออีกแป๊บ</button>
+                </div>
+            </div>
+
+            <!-- Alert Modal (e.g. out of canvas) -->
+            <div id="alert-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Oops!</h2>
+                <p id="alert-msg" class="doodle-text">Message</p>
+                <button class="doodle-btn close-modal">OK</button>
+            </div>
+
+            <!-- Animal Name Modal -->
+            <div id="animal-name-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Name your Artnimal!</h2>
+                <p class="doodle-text th-text">ตั้งชื่อให้น้อนตัวใหม่ของคุณหน่อย</p>
+                <input type="text" id="animal-name-input" class="doodle-input"
+                    style="padding:10px; width:80%; border-radius:10px; margin: 15px 0;" maxlength="20">
+                <button id="btn-confirm-name" class="doodle-btn primary-btn th-text">สร้างน้อนกันเล้ย!</button>
+            </div>
+
+            <!-- Quest Modal -->
+            <div id="quest-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Achievements</h2>
+                <div id="quest-list" class="doodle-text text-xl" style="text-align:left; width:100%; font-size: 1.2em;">
+                    <!-- Quests updated via JS -->
+                </div>
+                <button class="doodle-btn close-modal" style="margin-top:20px;">Close</button>
+            </div>
+
+            <!-- Screenshot Preview Modal -->
+            <div id="screenshot-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Nice Shot! 📸</h2>
+                <img id="screenshot-preview" src="" alt="Screenshot"
+                    style="max-width: 100%; border: 3px solid #000; border-radius: 10px; margin: 15px 0;">
+                <div class="modal-buttons" style="flex-wrap: wrap; justify-content: center;">
+                    <button id="btn-save-shot" class="doodle-btn primary-btn th-text">💾 Save</button>
+                    <button id="btn-discard-shot" class="doodle-btn danger-btn close-modal th-text">🗑 Discard</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts using ES6 modules -->
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
