@@ -45,7 +45,10 @@ export class Game {
 
         // Event for Timer start (from Play Warning Modal confirm)
         window.addEventListener('gameTimerStart', () => {
-            this.playtimeSeconds = 0;
+            if (!this.hasStartedTimer) {
+                this.playtimeSeconds = 0;
+                this.hasStartedTimer = true;
+            }
             this.lastTimestamp = performance.now();
         });
 
