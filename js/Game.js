@@ -10,10 +10,10 @@ export class Game {
         this.particles = [];
         this.canvasDrops = [];
         this.isRunning = false;
-        
+
         // Auto food drop timer
         this.autoFoodTimer = 0;
-        
+
         // Playtime Timer
         this.playtimeSeconds = 0;
         this.lastTimestamp = 0;
@@ -25,7 +25,7 @@ export class Game {
         window.DoodleGarden.ParticleClass = Particle;
 
         this.loop = this.loop.bind(this);
-        
+
         window.addEventListener('gameStateActive', () => {
             if (!this.isRunning) {
                 this.isRunning = true;
@@ -34,7 +34,7 @@ export class Game {
                 requestAnimationFrame(this.loop);
             }
         });
-        
+
         window.addEventListener('drawingStateActive', () => {
             this.isRunning = false;
         });
@@ -58,7 +58,7 @@ export class Game {
             const rect = this.canvas.getBoundingClientRect();
             let clientX = e.clientX;
             let clientY = e.clientY;
-            
+
             if (e.touches && e.touches.length > 0) {
                 clientX = e.touches[0].clientX;
                 clientY = e.touches[0].clientY;
@@ -87,7 +87,7 @@ export class Game {
                 // Simple bounding box check based on scale
                 const w = anim.baseWidth * anim.scaleX;
                 const h = anim.baseHeight * anim.scaleY;
-                if (x > anim.x - w/2 && x < anim.x + w/2 && y > anim.y - h/2 && y < anim.y + h/2) {
+                if (x > anim.x - w / 2 && x < anim.x + w / 2 && y > anim.y - h / 2 && y < anim.y + h / 2) {
                     anim.onClick();
                     this.draggedAnimal = anim;
                     clickedAnimal = true;
@@ -123,7 +123,7 @@ export class Game {
         this.canvas.addEventListener('mousedown', downHandler);
         this.canvas.addEventListener('mousemove', moveHandler);
         window.addEventListener('mouseup', upHandler);
-        
+
         this.canvas.addEventListener('touchstart', downHandler, { passive: false });
         this.canvas.addEventListener('touchmove', moveHandler, { passive: false });
         window.addEventListener('touchend', upHandler);
@@ -143,7 +143,7 @@ export class Game {
             const isJ = window.DoodleGarden.isJuicy;
             const animal = new Animal(img, name, startX, startY, isJ);
             this.animals.push(animal);
-            
+
             if (isJ) {
                 // Spawn Poof Particles
                 const parts = Juice.createParticles(startX, startY, '#ffffff');
@@ -156,13 +156,13 @@ export class Game {
     dropFood(x, y) {
         const isJ = window.DoodleGarden.isJuicy;
         const food = new Food(x, y, isJ);
-        
+
         // Star Food Logic
         window.DoodleGarden.totalFoodsDropped++;
         if (window.DoodleGarden.totalFoodsDropped >= 1000) {
             food.isStar = true;
         }
-        
+
         this.foods.push(food);
         if (isJ) Juice.play('pop');
     }
@@ -170,7 +170,7 @@ export class Game {
     collectCanvasDrop() {
         const isJ = window.DoodleGarden.isJuicy;
         if (isJ) Juice.play('tada');
-        
+
         window.DoodleGarden.canvasCount++;
         window.dispatchEvent(new Event('inventoryChanged'));
     }
@@ -182,52 +182,39 @@ export class Game {
         // Update Timer
         if (this.lastTimestamp === 0) this.lastTimestamp = timestamp;
         const delta = timestamp - this.lastTimestamp;
-        
+
         if (!window.DoodleGarden.isPaused && window.DoodleGarden.currentZone !== 'menu') {
             this.playtimeSeconds += delta / 1000;
             this.updateTimerDisplay();
-
-            // Auto Food Drop
-            this.autoFoodTimer++;
-            if (this.autoFoodTimer >= 120) { // Approx 2 seconds at 60fps
-                this.autoFoodTimer = 0;
-                // Randomly drop food if there are animals, to encourage idle play
-                if (this.animals.length > 0) {
-                    const pad = 50;
-                    const rx = pad + Math.random() * (this.canvas.width - pad * 2);
-                    const ry = pad + Math.random() * (this.canvas.height - pad * 2);
-                    this.dropFood(rx, ry);
-                }
-            }
         }
-        
+
         this.lastTimestamp = timestamp;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
+
         // Handle Cheat Timer
         if (window.DoodleGarden.rainbowCheatTimer > 0) {
             window.DoodleGarden.rainbowCheatTimer--;
         }
-        
+
         const isJ = window.DoodleGarden.isJuicy;
         const currentZ = window.DoodleGarden.currentZone;
         const isPaused = window.DoodleGarden.isPaused;
-        
+
         if (!isPaused) this.foods.forEach(f => f.update());
-        
+
         this.canvasDrops = this.canvasDrops.filter(d => !d.collected);
         this.canvasDrops.forEach(d => {
             d.isJuicy = isJ;
             if (!isPaused) d.update(this.canvas.width, this.canvas.height);
             d.draw(this.ctx);
         });
-        
+
         this.animals.forEach(anim => {
-            anim.isJuicy = isJ; 
+            anim.isJuicy = isJ;
             if (!isPaused) {
                 const act = anim.update(this.canvas.width, this.canvas.height, this.foods);
-                
+
                 if (act) {
                     if (act.state === 'droppedCanvas') {
                         this.canvasDrops.push(new CanvasDrop(anim.x, anim.y + 30, isJ));
@@ -238,7 +225,7 @@ export class Game {
                     }
                 }
             }
-            
+
             anim.draw(this.ctx);
         });
 
@@ -255,23 +242,23 @@ export class Game {
             this.particles.forEach(p => p.draw(this.ctx));
             this.particles = this.particles.filter(p => p.life > 0);
         }
-        
+
         // Draw Rainbow Timer at the very top
         if (window.DoodleGarden.rainbowCheatTimer > 0) {
             this.ctx.save();
             this.ctx.font = 'bold 24px "Patrick Hand", cursive';
             this.ctx.textAlign = 'center';
             this.ctx.textBaseline = 'top';
-            
+
             const secondsLeft = Math.ceil(window.DoodleGarden.rainbowCheatTimer / 60);
             const text = `🌈 Rainbow Mode: ${secondsLeft}s`;
-            
+
             // Hue shifts over time
             const hue = (timestamp / 10) % 360;
             this.ctx.fillStyle = `hsl(${hue}, 80%, 60%)`;
             this.ctx.strokeStyle = '#fff';
             this.ctx.lineWidth = 4;
-            
+
             const cx = this.canvas.width / 2;
             const cy = 20;
             this.ctx.strokeText(text, cx, cy);
@@ -281,7 +268,7 @@ export class Game {
 
         requestAnimationFrame(this.loop);
     }
-    
+
     updateTimerDisplay() {
         const timerDisplay = document.getElementById('timer-display');
         if (!timerDisplay) return;
@@ -300,15 +287,15 @@ export class Game {
             if (window.DoodleGarden.isJuicy) {
                 // Celebration Effect
                 Juice.play('tada');
-                
+
                 // Spawn a ton of particles
                 const cx = this.canvas.width / 2;
                 const cy = this.canvas.height / 2;
                 for (let i = 0; i < 5; i++) {
-                    const parts = Juice.createParticles(cx + (Math.random()-0.5)*100, cy + (Math.random()-0.5)*100, '#f1c40f');
+                    const parts = Juice.createParticles(cx + (Math.random() - 0.5) * 100, cy + (Math.random() - 0.5) * 100, '#f1c40f');
                     this.particles.push(...parts);
                 }
-                
+
                 // Add bounce class to timer
                 timerDisplay.parentElement.classList.add('flash-anim');
                 setTimeout(() => timerDisplay.parentElement.classList.remove('flash-anim'), 500);
@@ -319,37 +306,37 @@ export class Game {
     evaluateQuests() {
         const qList = document.getElementById('quest-list');
         if (!qList) return;
-        
+
         const state = window.DoodleGarden;
         const quests = [
             { text: "เลี้ยงสัตว์ครบ 10 ตัว", current: state.totalAnimalsSpawned, max: 10 },
             { text: "เลี้ยงสัตว์ครบ 20 ตัว", current: state.totalAnimalsSpawned, max: 20 },
-            { text: "วาดรูปสัตว์ 1 ตัวโดยใช้สีมากกว่าหรือเท่ากับ 5 สี", current: state.maxColorsUsed, max: 5 }, 
+            { text: "วาดรูปสัตว์ 1 ตัวโดยใช้สีมากกว่าหรือเท่ากับ 5 สี", current: state.maxColorsUsed, max: 5 },
             { text: "วาดรูปสัตว์ 1 ตัวโดยใช้สีมากกว่าหรือเท่ากับ 10 สี", current: state.maxColorsUsed, max: 10 },
             { text: "ให้อาหารทั้งหมด 1,000 ชิ้น", current: state.totalFoodsDropped, max: 1000 },
             { text: "เลี้ยงสัตว์ 1 ตัวให้ถึงเลเวล 10", current: state.maxAnimalLevel || 0, max: 10 }
         ];
-        
+
         let allDone = true;
-        
+
         qList.innerHTML = '';
         quests.forEach(q => {
             const isDone = q.current >= q.max;
             if (!isDone) allDone = false;
-            
+
             const div = document.createElement('div');
             div.className = `quest-row ${isDone ? 'done' : ''}`;
             const label = document.createElement('span');
             label.innerText = q.text;
-            
+
             const prog = document.createElement('span');
             prog.innerText = `${Math.min(q.current, q.max).toLocaleString()} / ${q.max.toLocaleString()} ${isDone ? '✅(รับถ้วยแล้ว)' : '❌'}`;
-            
+
             div.appendChild(label);
             div.appendChild(prog);
             qList.appendChild(div);
         });
-        
+
         // Add Total Food Counter at the bottom
         const totalFoodDiv = document.createElement('div');
         totalFoodDiv.style.marginTop = '20px';
@@ -358,41 +345,41 @@ export class Game {
         totalFoodDiv.style.textAlign = 'center';
         totalFoodDiv.innerText = `🍖 จำนวนการให้อาหารทั้งหมด: ${state.totalFoodsDropped.toLocaleString()} ชิ้น`;
         qList.appendChild(totalFoodDiv);
-        
+
         // Ending Sequence check
         if (allDone && !this.endingTriggered) {
             this.endingTriggered = true;
             setTimeout(() => this.triggerEnding(), 1000);
         }
     }
-    
+
     triggerEnding() {
         const overlay = document.getElementById('ending-overlay');
         if (!overlay) return;
-        
+
         overlay.classList.remove('hidden');
         overlay.classList.remove('fade-out'); // Ensure it's not faded
         overlay.style.opacity = '1';
-        
+
         // Play epic sound via Juice (using a combo for epicness since we only have click/pop/tada)
         if (window.DoodleGarden.isJuicy) {
             Juice.play('tada');
             setTimeout(() => Juice.play('tada'), 500);
             setTimeout(() => Juice.play('tada'), 1000);
         }
-        
+
         // Wait 10 seconds on the dark screen
         setTimeout(() => {
             // Fade out the entire overlay wrapper
             overlay.style.opacity = '0';
             overlay.classList.add('fade-out');
-            
+
             // Show quit modal after fade out (2s padding based on CSS transition)
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 overlay.style.opacity = '1'; // reset for next play
                 overlay.classList.remove('fade-out');
-                
+
                 // Hide other modals just in case
                 const uiModalOverlay = document.getElementById('modal-overlay');
                 const quitModal = document.getElementById('quit-modal');
@@ -402,7 +389,7 @@ export class Game {
                 const alertModal = document.getElementById('alert-modal');
                 const questModal = document.getElementById('quest-modal');
                 const nameModal = document.getElementById('animal-name-modal');
-                
+
                 if (uiModalOverlay) uiModalOverlay.classList.remove('hidden');
                 if (ingameMenuModal) ingameMenuModal.classList.add('hidden');
                 if (settingsModal) settingsModal.classList.add('hidden');
@@ -410,7 +397,7 @@ export class Game {
                 if (alertModal) alertModal.classList.add('hidden');
                 if (questModal) questModal.classList.add('hidden');
                 if (nameModal) nameModal.classList.add('hidden');
-                
+
                 if (quitModal) {
                     quitModal.classList.remove('hidden');
                 }

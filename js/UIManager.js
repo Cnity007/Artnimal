@@ -16,7 +16,7 @@ export class UIManager {
         this.btnMenuIngame = document.getElementById('btn-menu-ingame');
         this.btnCamera = document.getElementById('btn-camera');
         this.btnSurvey = document.getElementById('btn-survey');
-        
+
         this.btnResume = document.getElementById('btn-resume');
         this.btnHome = document.getElementById('btn-home');
         this.btnSettings = document.getElementById('btn-settings');
@@ -53,17 +53,17 @@ export class UIManager {
         this.canvasCountElem = document.getElementById('canvas-count');
         this.animalNameInput = document.getElementById('animal-name-input');
         this.btnConfirmName = document.getElementById('btn-confirm-name');
-        
+
         this.btnBackFromDraw = document.getElementById('btn-back-from-draw');
         this.btnConfirmDrawBack = document.getElementById('btn-confirm-draw-back');
         this.btnBackToDraw = document.getElementById('btn-back-to-draw');
         this.btnConfirmPlay = document.getElementById('btn-confirm-play');
-        
+
         this.questWidget = document.getElementById('quest-widget');
         this.questListUI = document.getElementById('quest-list');
-        
+
         this.btnSaveShot = document.getElementById('btn-save-shot');
-        
+
         this.gameCanvas = document.getElementById('game-canvas');
 
         // Zone selectors removed
@@ -130,10 +130,10 @@ export class UIManager {
 
         this.btnCredit.addEventListener('click', () => { this.playClickSound(); this.openModal(this.creditModal); });
         this.btnDonate.addEventListener('click', () => { this.playClickSound(); this.openModal(this.donateModal); });
-        this.btnQuitMain.addEventListener('click', () => { 
-            this.playClickSound(); 
+        this.btnQuitMain.addEventListener('click', () => {
+            this.playClickSound();
             this.isMainQuitFlow = true;
-            this.openModal(this.surveyModal); 
+            this.openModal(this.surveyModal);
         });
         this.btnConfirmQuit.addEventListener('click', () => { this.playClickSound(); window.close(); });
 
@@ -159,7 +159,7 @@ export class UIManager {
         });
 
         this.btnSettings.addEventListener('click', () => { this.playClickSound(); this.openModal(this.settingsModal); });
-        
+
         if (this.btnSurvey) {
             this.btnSurvey.addEventListener('click', () => {
                 this.playClickSound();
@@ -217,7 +217,7 @@ export class UIManager {
                 window.dispatchEvent(new Event('confirmDrawBack'));
             });
         }
-        
+
         if (this.closeModalDrawBtns) {
             this.closeModalDrawBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -247,7 +247,7 @@ export class UIManager {
                 this.animalNameInput.value = '';
             });
         }
-        
+
         // Quests
         this.questWidget.addEventListener('click', () => {
             this.playClickSound();
@@ -260,12 +260,12 @@ export class UIManager {
             this.playClickSound();
             this.takeScreenshot();
         });
-        
+
         this.btnSaveShot.addEventListener('click', () => {
             this.playClickSound();
             const img = document.getElementById('screenshot-preview');
             const link = document.createElement('a');
-            link.download = `own_farm_${new Date().toISOString().slice(0,10).replace(/-/g, '')}.png`;
+            link.download = `own_farm_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.png`;
             link.href = img.src;
             link.click();
             this.closeModals();
@@ -348,7 +348,7 @@ export class UIManager {
 
             if (match && match[2].length === 11) {
                 const id = match[2];
-                
+
                 // Fetch title from noembed (public oEmbed endpoint)
                 fetch(`https://noembed.com/embed?dataType=json&url=https://www.youtube.com/watch?v=${id}`)
                     .then(res => res.json())
@@ -365,7 +365,7 @@ export class UIManager {
                         this.updateQueueUI();
                         if (this.ytQueue.length === 1) this.playYt(0);
                     });
-                
+
                 this.ytLinkInput.value = '';
             } else {
                 this.showAlert("ลิงก์ YouTube ไม่ถูกต้อง! ลองใช้ของรูปแบบ youtube.com/watch?v= หรือ youtu.be/...");
@@ -442,10 +442,10 @@ export class UIManager {
                 // Re-draw the grid lines if we want them in the screenshot
                 topCtx.strokeStyle = 'rgba(52, 152, 219, 0.2)';
                 topCtx.lineWidth = 1;
-                for(let x=0; x<tempCanvas.width; x+=30) {
+                for (let x = 0; x < tempCanvas.width; x += 30) {
                     topCtx.beginPath(); topCtx.moveTo(x, 0); topCtx.lineTo(x, tempCanvas.height); topCtx.stroke();
                 }
-                for(let y=0; y<tempCanvas.height; y+=30) {
+                for (let y = 0; y < tempCanvas.height; y += 30) {
                     topCtx.beginPath(); topCtx.moveTo(0, y); topCtx.lineTo(tempCanvas.width, y); topCtx.stroke();
                 }
 
@@ -459,7 +459,7 @@ export class UIManager {
 
                 // 4. Restore UI
                 uiElements.forEach(el => el.classList.remove('hide-ui'));
-                
+
                 // Hide YT widget if not juicy
                 if (!window.DoodleGarden.isJuicy) {
                     this.ytWidget.classList.add('hidden');
@@ -523,10 +523,10 @@ export class UIManager {
         this.ytQueue.forEach((song, idx) => {
             const div = document.createElement('div');
             div.className = 'queue-item';
-            
+
             const textSpan = document.createElement('span');
             textSpan.innerText = `${idx + 1}. ${song.title} ${idx === this.currentYtIndex ? '🎵(Playing)' : ''}`;
-            
+
             const btnDel = document.createElement('button');
             btnDel.className = 'btn-delete-yt doodle-btn';
             btnDel.innerText = 'X';
@@ -539,14 +539,14 @@ export class UIManager {
                         this.currentYtIndex = this.currentYtIndex % this.ytQueue.length;
                         this.playYt(this.currentYtIndex);
                     } else {
-                        if(this.ytPlayer.pauseVideo) this.ytPlayer.pauseVideo();
+                        if (this.ytPlayer.pauseVideo) this.ytPlayer.pauseVideo();
                     }
                 } else if (idx < this.currentYtIndex) {
                     this.currentYtIndex--;
                 }
                 this.updateQueueUI();
             };
-            
+
             div.appendChild(textSpan);
             div.appendChild(btnDel);
             this.ytQueueList.appendChild(div);

@@ -34,7 +34,8 @@
 
         <!-- Drawing State (Editor) -->
         <div id="drawing-state" class="state-container hidden">
-            <div class="editor-header doodle-box" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="editor-header doodle-box"
+                style="display: flex; justify-content: space-between; align-items: center;">
                 <button id="btn-back-from-draw" class="doodle-btn action-btn">↩ Back</button>
                 <h2 style="margin: 0;">Draw an Artnimal</h2>
                 <div class="zone-selector">
@@ -55,7 +56,8 @@
                 </div>
                 <!-- Drawing Modes -->
                 <div class="tool-group" style="margin: 5px 0;">
-                    <button id="btn-tool-brush" class="doodle-btn action-btn active" style="background: #e0e0e0;">✏️ Pen</button>
+                    <button id="btn-tool-brush" class="doodle-btn action-btn active" style="background: #e0e0e0;">✏️
+                        Pen</button>
                     <button id="btn-tool-bucket" class="doodle-btn action-btn">🪣 Fill</button>
                     <button id="btn-tool-eraser" class="doodle-btn action-btn">🔴 Eraser</button>
                 </div>
@@ -92,7 +94,8 @@
             </div>
 
             <!-- Timer UI -->
-            <div id="game-timer" class="doodle-box interactive-box doodle-text" style="position: absolute; bottom: 20px; right: 20px; font-size: 1.5em; padding: 10px 20px;">
+            <div id="game-timer" class="doodle-box interactive-box doodle-text"
+                style="position: absolute; bottom: 20px; right: 20px; font-size: 1.5em; padding: 10px 20px;">
                 ⏱️ <span id="timer-display">00:00</span>
             </div>
         </div>
@@ -112,8 +115,10 @@
             <!-- Play Warning Modal -->
             <div id="play-warning-modal" class="modal doodle-box interactive-box hidden">
                 <h2>Welcome!</h2>
-                <p class="doodle-text th-text text-xl">เกมนี้มีโหมด juice อยู่ในหน้า Setting อยากขอความกรุณาคนที่เล่นลองเล่นแบบไม่เปิดโหมด juice ก่อน แล้วพอเบื่อแล้วค่อยลองเปิดดูนะ</p>
-                <button id="btn-confirm-play" class="doodle-btn primary-btn" style="margin-top: 20px;">เข้าใจแล้ว เล่นเลย!</button>
+                <p class="doodle-text th-text text-xl">เกมนี้มีโหมด juice อยู่ในหน้า Setting
+                    อยากขอความกรุณาคนที่เล่นลองเล่นแบบไม่เปิดโหมด juice ก่อน แล้วพอเบื่อแล้วค่อยลองเปิดดูนะ</p>
+                <button id="btn-confirm-play" class="doodle-btn primary-btn" style="margin-top: 20px;">เข้าใจแล้ว
+                    เล่นเลย!</button>
             </div>
 
             <!-- In-Game Menu Modal -->
@@ -192,11 +197,15 @@
             <!-- Survey Modal -->
             <div id="survey-modal" class="modal doodle-box interactive-box hidden">
                 <h2>Feedback Survey</h2>
-                <div class="donate-img-placeholder">
-                    <img src="QR.jpg" alt="Survey QR"
-                        onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'><rect width=\'200\' height=\'200\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'20\'>QR.jpg</text></svg>'">
+                <div class="donate-img-placeholder" style="margin-bottom: 15px;">
+                    <img src="QR.jpeg" alt="Survey QR" style="max-height: 150px; width: auto;"
+                        onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'><rect width=\'200\' height=\'200\' fill=\'%23eee\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'20\'>QR.jpeg</text></svg>'">
                 </div>
-                <p class="doodle-text text-xl th-text">ช่วยทำแบบสอบถามนี้หน่อยนะคับ</p>
+                <p class="doodle-text text-xl th-text" style="margin-bottom: 15px; margin-top: 0;">
+                    ช่วยทำแบบสอบถามนี้หน่อยนะคับ</p>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfRvKSfYXn7YENEXBrYgbjHSWdvwvYijnrtd6BrDmy1GChhzw/viewform?usp=sharing&ouid=114139573670525869058"
+                    target="_blank" class="doodle-btn primary-btn th-text"
+                    style="text-decoration: none; margin-bottom: 15px; display: inline-block;">กรอกแบบสอบถามคลิกเลย!</a>
                 <button class="doodle-btn close-modal">Close</button>
             </div>
 

@@ -423,6 +423,8 @@ input[type="color"] {
     padding: 30px;
     width: 90%;
     max-width: 400px;
+    max-height: 85vh;
+    overflow-y: auto;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -470,12 +472,10 @@ body.juicy-mode #modal-overlay:not(.hidden) .modal:not(.hidden) {
     flex-direction: row;
     flex-wrap: wrap;
     gap: clamp(8px, 2vw, 15px);
-    z-index: 90;
-    pointer-events: none; /* Let clicks pass through the container itself */
+    z-index: 100;
 }
 
 .top-btn {
-    pointer-events: auto; /* Buttons are clickable */
     font-size: clamp(1.2em, 4vw, 1.8em) !important;
     padding: clamp(8px, 2vw, 12px) !important;
     width: clamp(45px, 12vw, 60px);
