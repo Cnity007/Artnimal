@@ -10,6 +10,16 @@ export class Game {
         this.particles = [];
         this.canvasDrops = [];
         this.isRunning = false;
+        
+        // Auto food drop timer
+        this.autoFoodTimer = 0;
+        
+        // Playtime Timer
+        this.playtimeSeconds = 0;
+        this.lastTimestamp = 0;
+
+        // Dragging state
+        this.draggedAnimal = null;
 
         // Expose Particle reference for Juice to use
         window.DoodleGarden.ParticleClass = Particle;
@@ -19,6 +29,7 @@ export class Game {
         window.addEventListener('gameStateActive', () => {
             if (!this.isRunning) {
                 this.isRunning = true;
+                this.lastTimestamp = 0; // reset for delta time calculation
                 this.resize();
                 requestAnimationFrame(this.loop);
             }
@@ -32,13 +43,18 @@ export class Game {
             if (this.isRunning) this.resize();
         });
 
+        // Event for Timer start (from Play Warning Modal confirm)
+        window.addEventListener('gameTimerStart', () => {
+            this.playtimeSeconds = 0;
+            this.lastTimestamp = performance.now();
+        });
+
         // Quest Evaluation
         window.addEventListener('requestQuestUpdate', () => {
             this.evaluateQuests();
         });
 
-        const clickHandler = (e) => {
-            e.preventDefault(); // crucial for touch
+        const getCanvasPos = (e) => {
             const rect = this.canvas.getBoundingClientRect();
             let clientX = e.clientX;
             let clientY = e.clientY;
@@ -50,11 +66,19 @@ export class Game {
 
             const scaleX = this.canvas.width / rect.width;
             const scaleY = this.canvas.height / rect.height;
-            const x = (clientX - rect.left) * scaleX;
-            const y = (clientY - rect.top) * scaleY;
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        };
 
-            // 0. Check if game is paused
+        const downHandler = (e) => {
+            e.preventDefault(); // crucial for touch
             if (window.DoodleGarden.isPaused) return;
+
+            const pos = getCanvasPos(e);
+            const x = pos.x;
+            const y = pos.y;
 
             // 1. Check if clicked on an Animal
             let clickedAnimal = false;
@@ -65,6 +89,7 @@ export class Game {
                 const h = anim.baseHeight * anim.scaleY;
                 if (x > anim.x - w/2 && x < anim.x + w/2 && y > anim.y - h/2 && y < anim.y + h/2) {
                     anim.onClick();
+                    this.draggedAnimal = anim;
                     clickedAnimal = true;
                     break;
                 }
@@ -76,8 +101,32 @@ export class Game {
             }
         };
 
-        this.canvas.addEventListener('mousedown', clickHandler);
-        this.canvas.addEventListener('touchstart', clickHandler, { passive: false });
+        const moveHandler = (e) => {
+            if (window.DoodleGarden.isPaused || !this.draggedAnimal) return;
+            e.preventDefault();
+            const pos = getCanvasPos(e);
+            this.draggedAnimal.x = pos.x;
+            this.draggedAnimal.y = pos.y;
+            this.draggedAnimal.isDragged = true;
+            // Zero out velocity so it doesn't run away immediately when dropped
+            this.draggedAnimal.vx = 0;
+            this.draggedAnimal.vy = 0;
+        };
+
+        const upHandler = (e) => {
+            if (this.draggedAnimal) {
+                this.draggedAnimal.isDragged = false;
+                this.draggedAnimal = null;
+            }
+        };
+
+        this.canvas.addEventListener('mousedown', downHandler);
+        this.canvas.addEventListener('mousemove', moveHandler);
+        window.addEventListener('mouseup', upHandler);
+        
+        this.canvas.addEventListener('touchstart', downHandler, { passive: false });
+        this.canvas.addEventListener('touchmove', moveHandler, { passive: false });
+        window.addEventListener('touchend', upHandler);
     }
 
     resize() {
@@ -129,6 +178,30 @@ export class Game {
     loop(timestamp) {
         // Run continuously, but objects pause updates if isPaused
         if (!this.isRunning) return;
+
+        // Update Timer
+        if (this.lastTimestamp === 0) this.lastTimestamp = timestamp;
+        const delta = timestamp - this.lastTimestamp;
+        
+        if (!window.DoodleGarden.isPaused && window.DoodleGarden.currentZone !== 'menu') {
+            this.playtimeSeconds += delta / 1000;
+            this.updateTimerDisplay();
+
+            // Auto Food Drop
+            this.autoFoodTimer++;
+            if (this.autoFoodTimer >= 120) { // Approx 2 seconds at 60fps
+                this.autoFoodTimer = 0;
+                // Randomly drop food if there are animals, to encourage idle play
+                if (this.animals.length > 0) {
+                    const pad = 50;
+                    const rx = pad + Math.random() * (this.canvas.width - pad * 2);
+                    const ry = pad + Math.random() * (this.canvas.height - pad * 2);
+                    this.dropFood(rx, ry);
+                }
+            }
+        }
+        
+        this.lastTimestamp = timestamp;
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
@@ -209,6 +282,40 @@ export class Game {
         requestAnimationFrame(this.loop);
     }
     
+    updateTimerDisplay() {
+        const timerDisplay = document.getElementById('timer-display');
+        if (!timerDisplay) return;
+
+        const totalSeconds = Math.floor(this.playtimeSeconds);
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+        // 10 minute check (600 seconds)
+        // We only trigger once exactly matching a multiple of 600, checking if it was just hit in this exact frame
+        // to avoid spamming the effect.  Actually an easier way is to track the last milestone.
+        const currentMilestone = Math.floor(totalSeconds / 600);
+        if (currentMilestone > 0 && currentMilestone > (this.lastTenMinMilestone || 0)) {
+            this.lastTenMinMilestone = currentMilestone;
+            if (window.DoodleGarden.isJuicy) {
+                // Celebration Effect
+                Juice.play('tada');
+                
+                // Spawn a ton of particles
+                const cx = this.canvas.width / 2;
+                const cy = this.canvas.height / 2;
+                for (let i = 0; i < 5; i++) {
+                    const parts = Juice.createParticles(cx + (Math.random()-0.5)*100, cy + (Math.random()-0.5)*100, '#f1c40f');
+                    this.particles.push(...parts);
+                }
+                
+                // Add bounce class to timer
+                timerDisplay.parentElement.classList.add('flash-anim');
+                setTimeout(() => timerDisplay.parentElement.classList.remove('flash-anim'), 500);
+            }
+        }
+    }
+
     evaluateQuests() {
         const qList = document.getElementById('quest-list');
         if (!qList) return;

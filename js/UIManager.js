@@ -42,14 +42,22 @@ export class UIManager {
         this.quitModal = document.getElementById('quit-modal');
         this.alertModal = document.getElementById('alert-modal');
         this.animalNameModal = document.getElementById('animal-name-modal');
+        this.playWarningModal = document.getElementById('play-warning-modal');
+        this.drawBackWarningModal = document.getElementById('draw-back-warning-modal');
         this.questModal = document.getElementById('quest-modal');
         this.screenshotModal = document.getElementById('screenshot-modal');
         this.surveyModal = document.getElementById('survey-modal');
         this.closeModalBtns = document.querySelectorAll('.close-modal');
+        this.closeModalDrawBtns = document.querySelectorAll('.close-modal-draw');
 
         this.canvasCountElem = document.getElementById('canvas-count');
         this.animalNameInput = document.getElementById('animal-name-input');
         this.btnConfirmName = document.getElementById('btn-confirm-name');
+        
+        this.btnBackFromDraw = document.getElementById('btn-back-from-draw');
+        this.btnConfirmDrawBack = document.getElementById('btn-confirm-draw-back');
+        this.btnBackToDraw = document.getElementById('btn-back-to-draw');
+        this.btnConfirmPlay = document.getElementById('btn-confirm-play');
         
         this.questWidget = document.getElementById('quest-widget');
         this.questListUI = document.getElementById('quest-list');
@@ -106,13 +114,27 @@ export class UIManager {
         // Main Menu
         this.btnPlay.addEventListener('click', () => {
             this.playClickSound();
-            this.setZone('land');
-            this.switchToGame();
+            this.openModal(this.playWarningModal);
         });
+
+        if (this.btnConfirmPlay) {
+            this.btnConfirmPlay.addEventListener('click', () => {
+                this.playClickSound();
+                this.closeModals();
+                this.setZone('land');
+                this.switchToGame();
+                // trigger timer start event
+                window.dispatchEvent(new Event('gameTimerStart'));
+            });
+        }
 
         this.btnCredit.addEventListener('click', () => { this.playClickSound(); this.openModal(this.creditModal); });
         this.btnDonate.addEventListener('click', () => { this.playClickSound(); this.openModal(this.donateModal); });
-        this.btnQuitMain.addEventListener('click', () => { this.playClickSound(); this.openModal(this.quitModal); });
+        this.btnQuitMain.addEventListener('click', () => { 
+            this.playClickSound(); 
+            this.isMainQuitFlow = true;
+            this.openModal(this.surveyModal); 
+        });
         this.btnConfirmQuit.addEventListener('click', () => { this.playClickSound(); window.close(); });
 
         // In-game Menu
@@ -147,9 +169,17 @@ export class UIManager {
         }
 
         this.closeModalBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (e) => {
                 this.playClickSound();
                 this.closeModals();
+
+                // Check if in Main Quit Flow and closing the Survey Modal
+                if (this.isMainQuitFlow && e.target.closest('#survey-modal')) {
+                    this.isMainQuitFlow = false;
+                    this.openModal(this.quitModal);
+                    return; // Return early so we don't unpause or anything else
+                }
+
                 // If closing from ingame menu context without explicitly resuming, stay paused.
                 // The user must click "Resume" to unpause. Unless it's just a general modal close.
                 // For simplicity, we unpause on close if they were in the game view.
@@ -171,6 +201,32 @@ export class UIManager {
             }
         });
 
+        // From Drawing Back to Game
+        if (this.btnBackFromDraw) {
+            this.btnBackFromDraw.addEventListener('click', () => {
+                this.playClickSound();
+                // We check if drawing has happened in main.js, but UI manager dispatches the intent
+                window.dispatchEvent(new Event('requestDrawBack'));
+            });
+        }
+
+        if (this.btnConfirmDrawBack) {
+            this.btnConfirmDrawBack.addEventListener('click', () => {
+                this.playClickSound();
+                this.closeModals();
+                window.dispatchEvent(new Event('confirmDrawBack'));
+            });
+        }
+        
+        if (this.closeModalDrawBtns) {
+            this.closeModalDrawBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    this.playClickSound();
+                    this.closeModals();
+                });
+            });
+        }
+
         // Animal Naming Callback setup (will be overridden by main.js)
         this.onConfirmName = null;
         this.btnConfirmName.addEventListener('click', () => {
@@ -182,6 +238,15 @@ export class UIManager {
             this.closeModals();
             this.animalNameInput.value = '';
         });
+
+        if (this.btnBackToDraw) {
+            this.btnBackToDraw.addEventListener('click', () => {
+                this.playClickSound();
+                this.closeModals();
+                this.switchToDrawing();
+                this.animalNameInput.value = '';
+            });
+        }
         
         // Quests
         this.questWidget.addEventListener('click', () => {
@@ -504,6 +569,8 @@ export class UIManager {
         this.quitModal.classList.add('hidden');
         this.alertModal.classList.add('hidden');
         this.animalNameModal.classList.add('hidden');
+        if (this.playWarningModal) this.playWarningModal.classList.add('hidden');
+        if (this.drawBackWarningModal) this.drawBackWarningModal.classList.add('hidden');
         this.questModal.classList.add('hidden');
         this.screenshotModal.classList.add('hidden');
         if (this.surveyModal) this.surveyModal.classList.add('hidden');

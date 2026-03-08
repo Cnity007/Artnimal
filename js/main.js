@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
             uiManager.showAlert("ต้องวาดอะไรสักอย่างก่อนนะเจ้าของฟาร์ม!");
             return;
         }
-        
         // Open Name Modal instead of saving immediately
         uiManager.openModal(uiManager.animalNameModal);
         
@@ -52,5 +51,22 @@ document.addEventListener('DOMContentLoaded', () => {
             game.addAnimal(animalData, petName);
             uiManager.switchToGame();
         };
+    });
+
+    // Handle back logic from the drawing editor to the game
+    window.addEventListener('requestDrawBack', () => {
+        if (drawingEditor.hasDrawn) {
+            // Show warning if dirty
+            uiManager.openModal(uiManager.drawBackWarningModal);
+        } else {
+            // Clean, just go back
+            uiManager.switchToGame();
+        }
+    });
+
+    window.addEventListener('confirmDrawBack', () => {
+        // Confirmed discard
+        drawingEditor.clearCanvas(true);
+        uiManager.switchToGame();
     });
 });

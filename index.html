@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OWN FARM</title>
+    <title>ARTNIMAL</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Patrick+Hand&display=swap"
         rel="stylesheet">
@@ -34,8 +34,9 @@
 
         <!-- Drawing State (Editor) -->
         <div id="drawing-state" class="state-container hidden">
-            <div class="editor-header doodle-box">
-                <h2>Draw an Artnimal</h2>
+            <div class="editor-header doodle-box" style="display: flex; justify-content: space-between; align-items: center;">
+                <button id="btn-back-from-draw" class="doodle-btn action-btn">↩ Back</button>
+                <h2 style="margin: 0;">Draw an Artnimal</h2>
                 <div class="zone-selector">
                     <button class="zone-btn doodle-btn active" data-zone="land" style="display:none;">🌳 Land</button>
                     <!-- other zones removed per request -->
@@ -51,6 +52,12 @@
                 <div class="tool-group">
                     <input type="color" id="color-picker" value="#000000" class="doodle-input">
                     <input type="range" id="brush-size" min="1" max="50" value="5">
+                </div>
+                <!-- Drawing Modes -->
+                <div class="tool-group" style="margin: 5px 0;">
+                    <button id="btn-tool-brush" class="doodle-btn action-btn active" style="background: #e0e0e0;">✏️ Pen</button>
+                    <button id="btn-tool-bucket" class="doodle-btn action-btn">🪣 Fill</button>
+                    <button id="btn-tool-eraser" class="doodle-btn action-btn">🔴 Eraser</button>
                 </div>
                 <div class="tool-group">
                     <button id="btn-undo" class="doodle-btn action-btn">↺ Undo</button>
@@ -83,6 +90,11 @@
                     📝 <span id="canvas-count">1</span>
                 </div>
             </div>
+
+            <!-- Timer UI -->
+            <div id="game-timer" class="doodle-box interactive-box doodle-text" style="position: absolute; bottom: 20px; right: 20px; font-size: 1.5em; padding: 10px 20px;">
+                ⏱️ <span id="timer-display">00:00</span>
+            </div>
         </div>
 
         <!-- Flash Effect for Screenshot -->
@@ -96,6 +108,13 @@
 
         <!-- Modals -->
         <div id="modal-overlay" class="hidden">
+
+            <!-- Play Warning Modal -->
+            <div id="play-warning-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Welcome!</h2>
+                <p class="doodle-text th-text text-xl">เกมนี้มีโหมด juice อยู่ในหน้า Setting อยากขอความกรุณาคนที่เล่นลองเล่นแบบไม่เปิดโหมด juice ก่อน แล้วพอเบื่อแล้วค่อยลองเปิดดูนะ</p>
+                <button id="btn-confirm-play" class="doodle-btn primary-btn" style="margin-top: 20px;">เข้าใจแล้ว เล่นเลย!</button>
+            </div>
 
             <!-- In-Game Menu Modal -->
             <div id="ingame-menu-modal" class="modal doodle-box interactive-box hidden">
@@ -206,7 +225,20 @@
                 <p class="doodle-text th-text">ตั้งชื่อให้น้อนตัวใหม่ของคุณหน่อย</p>
                 <input type="text" id="animal-name-input" class="doodle-input"
                     style="padding:10px; width:80%; border-radius:10px; margin: 15px 0;" maxlength="20">
-                <button id="btn-confirm-name" class="doodle-btn primary-btn th-text">สร้างน้อนกันเล้ย!</button>
+                <div class="modal-buttons" style="flex-direction: row; justify-content: space-center; gap: 10px;">
+                    <button id="btn-back-to-draw" class="doodle-btn action-btn">↩ กลับไปวาดต่อ</button>
+                    <button id="btn-confirm-name" class="doodle-btn primary-btn th-text">สร้างน้อนกันเล้ย!</button>
+                </div>
+            </div>
+
+            <!-- Drawing Back Warning Modal -->
+            <div id="draw-back-warning-modal" class="modal doodle-box interactive-box hidden">
+                <h2>Are you sure?</h2>
+                <p class="doodle-text th-text text-xl">น้อนยังไม่ได้เซฟนะ ต้องการออกจริงมั้ย?</p>
+                <div class="modal-buttons">
+                    <button id="btn-confirm-draw-back" class="doodle-btn danger-btn th-text">ออกเลย</button>
+                    <button class="doodle-btn close-modal-draw th-text">วาดต่อ</button>
+                </div>
             </div>
 
             <!-- Quest Modal -->

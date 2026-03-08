@@ -218,7 +218,7 @@ export class Food {
         return window.DoodleGarden && window.DoodleGarden.rainbowCheatTimer > 0;
     }
 
-    update() {
+    update(canvasWidth, canvasHeight, foods) {
         this.lifeTimer--;
         if (this.lifeTimer <= 0) {
             this.consumed = true; // Despawn
@@ -332,6 +332,9 @@ export class Animal {
         this.scaleY = isJuicy ? 0 : 1;
         this.scaleVelocity = 0;
         
+        // Dragging state
+        this.isDragged = false;
+        
         this.vx = (Math.random() - 0.5) * 2;
         this.vy = (Math.random() - 0.5) * 2;
         this.speed = 1.5;
@@ -381,6 +384,16 @@ export class Animal {
         } else {
             this.scaleX = this.targetBaseScale;
             this.scaleY = this.targetBaseScale;
+        }
+
+        // If dragged, position is handled by Game.js drag logic
+        if (this.isDragged) {
+            // visually look idle while dragged
+            if (this.isJuicy) {
+                // wiggle a bit while dragged
+                this.squashTimer = 5; 
+            }
+            return null;
         }
 
         // Fullness Cooldown Logic
