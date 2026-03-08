@@ -57,7 +57,8 @@ export class UIManager {
         this.btnBackFromDraw = document.getElementById('btn-back-from-draw');
         this.btnConfirmDrawBack = document.getElementById('btn-confirm-draw-back');
         this.btnBackToDraw = document.getElementById('btn-back-to-draw');
-        this.btnConfirmPlay = document.getElementById('btn-confirm-play');
+        this.btnPlayNormal = document.getElementById('btn-play-normal');
+        this.btnPlayJuice = document.getElementById('btn-play-juice');
 
         this.questWidget = document.getElementById('quest-widget');
         this.questListUI = document.getElementById('quest-list');
@@ -117,9 +118,28 @@ export class UIManager {
             this.openModal(this.playWarningModal);
         });
 
-        if (this.btnConfirmPlay) {
-            this.btnConfirmPlay.addEventListener('click', () => {
+        if (this.btnPlayNormal) {
+            this.btnPlayNormal.addEventListener('click', () => {
                 this.playClickSound();
+                if (this.juicyToggle && this.juicyToggle.checked) {
+                    this.juicyToggle.checked = false;
+                    this.juicyToggle.dispatchEvent(new Event('change'));
+                }
+                this.closeModals();
+                this.setZone('land');
+                this.switchToGame();
+                // trigger timer start event
+                window.dispatchEvent(new Event('gameTimerStart'));
+            });
+        }
+
+        if (this.btnPlayJuice) {
+            this.btnPlayJuice.addEventListener('click', () => {
+                this.playClickSound();
+                if (this.juicyToggle && !this.juicyToggle.checked) {
+                    this.juicyToggle.checked = true;
+                    this.juicyToggle.dispatchEvent(new Event('change'));
+                }
                 this.closeModals();
                 this.setZone('land');
                 this.switchToGame();

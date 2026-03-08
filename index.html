@@ -115,10 +115,15 @@
             <!-- Play Warning Modal -->
             <div id="play-warning-modal" class="modal doodle-box interactive-box hidden">
                 <h2>Welcome!</h2>
-                <p class="doodle-text th-text text-xl">เกมนี้มีโหมด juice อยู่ในหน้า Setting
-                    อยากขอความกรุณาคนที่เล่นลองเล่นแบบไม่เปิดโหมด juice ก่อน แล้วพอเบื่อแล้วค่อยลองเปิดดูนะ</p>
-                <button id="btn-confirm-play" class="doodle-btn primary-btn" style="margin-top: 20px;">เข้าใจแล้ว
-                    เล่นเลย!</button>
+                <p class="doodle-text th-text text-xl">เกมนี้มี 2 โหมด โหมด ปกติกับโหมด juice
+                    คุณจะเทสโหมดไหนก่อนก็ได้โดยให้เลือกเทสแค่โหมดเดียวแล้วตอบแบบสอบถามก่อน
+                    ค่อยเข้ามาลองอีกโหมดหนึ่งหลังจากนั้น แล้วตอบแบบสอบถามอีกที</p>
+                <div class="modal-buttons" style="flex-wrap: wrap; justify-content: center;">
+                    <button id="btn-play-normal" class="doodle-btn primary-btn th-text"
+                        style="margin-top: 10px;">เล่นโหมดปกติ</button>
+                    <button id="btn-play-juice" class="doodle-btn action-btn th-text" style="margin-top: 10px;">เล่นโหมด
+                        Juice</button>
+                </div>
             </div>
 
             <!-- In-Game Menu Modal -->
